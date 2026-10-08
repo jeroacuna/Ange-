@@ -23,10 +23,10 @@ function Img({ p, className }: { p: Photo; className?: string }) {
 }
 
 function Media({ p }: { p: Photo }) {
-  const [bad, setBad] = useState(false)
+  const [bad, setBad] = useState('')
   if (p.type !== 'video') return <Media p={p} />
-  return bad ? <div className="aspect-video bg-zinc-800 grid place-items-center font-mono text-[10px] text-zinc-500">FILE NOT FOUND</div>
-    : <video src={GALLERY_BASE + p.src} controls playsInline preload="metadata" poster={p.poster ? GALLERY_BASE + p.poster : undefined} onError={() => setBad(true)} className="max-h-[70svh] w-full bg-black" />
+  return bad ? <a href={GALLERY_BASE + p.src} target="_blank" rel="noreferrer" className="aspect-video bg-zinc-800 grid place-items-center px-3 text-center font-mono text-[10px] text-zinc-400">NO SE PUDO REPRODUCIR (error {bad}). TOCÁ PARA ABRIR EL VIDEO</a>
+    : <video src={GALLERY_BASE + p.src} controls playsInline preload="auto" poster={p.poster ? GALLERY_BASE + p.poster : undefined} onError={e => setBad(String(e.currentTarget.error?.code ?? '?'))} className="max-h-[70svh] w-full bg-black" />
 }
 
 function Card({ p, i, root, open, ask }: { p: Photo; i: number; root: RefObject<HTMLDivElement>; open: () => void; ask: () => void }) {
@@ -53,8 +53,8 @@ function Lightbox({ items, i, set }: { items: Photo[]; i: number; set: (n: numbe
   return (
     <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} className="fixed inset-0 z-[58] bg-black/95 grid place-items-center">
       <button aria-label="cerrar" onClick={() => set(null)} className="absolute top-4 right-4 p-3 z-10"><X size={20} /></button>
-      <motion.div key={i} drag="x" dragSnapToOrigin onDragEnd={(_, d) => { if (Math.abs(d.offset.x) > 80) go(d.offset.x < 0 ? 1 : -1) }}
-        onDoubleClick={e => { burst(e.clientX, e.clientY, 8); vibrate(20); blip(700, 0.06) }} {...lp}
+      <motion.div key={i} drag={p.type === 'video' ? false : 'x'} dragSnapToOrigin onDragEnd={(_, d) => { if (Math.abs(d.offset.x) > 80) go(d.offset.x < 0 ? 1 : -1) }}
+        onDoubleClick={e => { if (p.type !== 'video') { burst(e.clientX, e.clientY, 8); vibrate(20); blip(700, 0.06) } }} {...(p.type === 'video' ? {} : lp)}
         initial={{ opacity: 0, scale: 0.92 }} animate={{ opacity: 1, scale: 1 }} className="w-[88vw] max-w-md bg-zinc-100 p-3 pb-5 shadow-2xl">
         <Img p={p} className="max-h-[70svh] w-full object-contain bg-black" />
         <div className="pt-2 font-mono text-[10px] text-zinc-800">{p.title}{p.text && ` — ${p.text}`}</div>
@@ -62,7 +62,7 @@ function Lightbox({ items, i, set }: { items: Photo[]; i: number; set: (n: numbe
         {an && <div className="mt-2 font-mono text-[10px] text-zinc-700 whitespace-pre-line">{p.analyze?.join('\n')}</div>}
         {meta && <div className="mt-2 font-mono text-[9px] text-zinc-600">{[...Object.entries(p.metadata ?? {}).map(([k, v]) => `${k}: ${v}`), p.date, p.note, p.src].filter(Boolean).join(' · ')}</div>}
       </motion.div>
-      <div className="absolute bottom-6 font-mono text-[10px] text-zinc-500">{i + 1} / {items.length}</div>
+      <div className="absolute bottom-6 flex items-center gap-6 font-mono text-[11px] text-zinc-500"><button aria-label="anterior" onClick={() => go(-1)} className="p-3">‹</button>{i + 1} / {items.length}<button aria-label="siguiente" onClick={() => go(1)} className="p-3">›</button></div>
     </motion.div>
   )
 }
