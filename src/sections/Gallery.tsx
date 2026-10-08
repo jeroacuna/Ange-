@@ -3,8 +3,8 @@ import type { RefObject } from 'react'
 import { AnimatePresence, motion, useInView, useScroll, useTransform } from 'framer-motion'
 import { X } from 'lucide-react'
 import { GALLERY_BASE } from '../config'
-import { PHOTOS, SPECIAL } from '../data/gallery'
-import type { Photo } from '../data/gallery'
+import { SPECIAL } from '../data/gallery'
+import type { MediaItem as Photo } from '../data/gallery'
 import type { Step } from '../data/content'
 import { Line, useReveal } from '../components/Seq'
 import { useLongPress } from '../hooks/useGestures'
@@ -16,8 +16,17 @@ const W = { s: 'w-40', m: 'w-56', l: 'w-72' }
 
 function Img({ p, className }: { p: Photo; className?: string }) {
   const [bad, setBad] = useState(false)
+  if (p.type === 'video' && p.poster) return <div className="relative"><img src={GALLERY_BASE + p.poster} alt="" loading="lazy" decoding="async" draggable={false} className={className} /><span className="absolute inset-0 grid place-items-center text-3xl text-white/80">▶</span></div>
+  if (p.type === 'video') return <div className={`${className} aspect-[4/5] bg-zinc-900 grid place-items-center font-mono text-[10px] text-zinc-400`}>▶ {p.title ?? 'VIDEO'}</div>
   if (bad) return <div className={`${className} aspect-[4/5] bg-zinc-800 grid place-items-center font-mono text-[10px] text-zinc-500`}>{p.title ?? 'FILE'}</div>
   return <img src={GALLERY_BASE + p.src} alt={p.title ?? ''} loading="lazy" decoding="async" draggable={false} onError={() => setBad(true)} className={className} />
+}
+
+function Media({ p }: { p: Photo }) {
+  const [bad, setBad] = useState(false)
+  if (p.type !== 'video') return <Media p={p} />
+  return bad ? <div className="aspect-video bg-zinc-800 grid place-items-center font-mono text-[10px] text-zinc-500">FILE NOT FOUND</div>
+    : <video src={GALLERY_BASE + p.src} controls playsInline preload="metadata" poster={p.poster ? GALLERY_BASE + p.poster : undefined} onError={() => setBad(true)} className="max-h-[70svh] w-full bg-black" />
 }
 
 function Card({ p, i, root, open, ask }: { p: Photo; i: number; root: RefObject<HTMLDivElement>; open: () => void; ask: () => void }) {
@@ -37,9 +46,9 @@ function Card({ p, i, root, open, ask }: { p: Photo; i: number; root: RefObject<
   )
 }
 
-function Lightbox({ i, set }: { i: number; set: (n: number | null) => void }) {
-  const p = PHOTOS[i]; const [meta, setMeta] = useState(false)
-  const go = (d: number) => { setMeta(false); set((i + d + PHOTOS.length) % PHOTOS.length) }
+function Lightbox({ items, i, set }: { items: Photo[]; i: number; set: (n: number | null) => void }) {
+  const p = items[i]; const [meta, setMeta] = useState(false); const [an, setAn] = useState(false)
+  const go = (d: number) => { setMeta(false); set((i + d + items.length) % items.length) }
   const lp = useLongPress(() => { setMeta(m => !m); vibrate(30) }, 600)
   return (
     <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} className="fixed inset-0 z-[58] bg-black/95 grid place-items-center">
@@ -49,14 +58,16 @@ function Lightbox({ i, set }: { i: number; set: (n: number | null) => void }) {
         initial={{ opacity: 0, scale: 0.92 }} animate={{ opacity: 1, scale: 1 }} className="w-[88vw] max-w-md bg-zinc-100 p-3 pb-5 shadow-2xl">
         <Img p={p} className="max-h-[70svh] w-full object-contain bg-black" />
         <div className="pt-2 font-mono text-[10px] text-zinc-800">{p.title}{p.text && ` — ${p.text}`}</div>
-        {meta && <div className="mt-2 font-mono text-[9px] text-zinc-600">{[p.date, p.note, p.src].filter(Boolean).join(' · ')}</div>}
+        {p.analyze && <button onClick={() => setAn(a => !a)} className="mt-2 font-mono text-[10px] text-red-700">[ ANALYZE AUDIO ]</button>}
+        {an && <div className="mt-2 font-mono text-[10px] text-zinc-700 whitespace-pre-line">{p.analyze?.join('\n')}</div>}
+        {meta && <div className="mt-2 font-mono text-[9px] text-zinc-600">{[...Object.entries(p.metadata ?? {}).map(([k, v]) => `${k}: ${v}`), p.date, p.note, p.src].filter(Boolean).join(' · ')}</div>}
       </motion.div>
-      <div className="absolute bottom-6 font-mono text-[10px] text-zinc-500">{i + 1} / {PHOTOS.length}</div>
+      <div className="absolute bottom-6 font-mono text-[10px] text-zinc-500">{i + 1} / {items.length}</div>
     </motion.div>
   )
 }
 
-export default function Gallery({ onClose }: { onClose: () => void }) {
+export default function Gallery({ items, title, onClose }: { items: Photo[]; title: string; onClose: () => void }) {
   const root = useRef<HTMLDivElement>(null); const endRef = useRef<HTMLElement>(null)
   const [sel, setSel] = useState<number | null>(null); const [ask, setAsk] = useState<number | null>(null); const [reveal, setReveal] = useState<Photo | null>(null)
   const seen = useInView(endRef, { once: true, amount: 0.6 }); const n = useReveal(END, seen)
@@ -64,27 +75,27 @@ export default function Gallery({ onClose }: { onClose: () => void }) {
   return (
     <motion.div ref={root} data-lenis-prevent initial={{ opacity: 0 }} animate={{ opacity: 1 }} className="fixed inset-0 z-[55] bg-black overflow-y-auto overscroll-contain">
       <header className="pt-24 px-6 text-center">
-        <h1 data-text="US" className="glitch text-7xl font-black">US</h1>
+        <h1 data-text={title} className="glitch text-5xl font-black">{title}</h1>
         <p className="mt-2 font-mono text-[11px] tracking-[.3em] text-zinc-500">files recovered successfully.</p>
       </header>
       <div className="flex flex-col gap-16 px-8 py-20 max-w-md mx-auto">
-        {PHOTOS.map((p, i) => <Card key={p.src} p={p} i={i} root={root} open={() => setSel(i)} ask={() => { setAsk(i); vibrate(40) }} />)}
+        {items.map((p, i) => <Card key={p.src} p={p} i={i} root={root} open={() => setSel(i)} ask={() => { setAsk(i); vibrate(40) }} />)}
       </div>
       <div className="bg-zinc-950 py-2"><div className="h-2" style={holes} />
         <div className="flex gap-3 overflow-x-auto snap-x px-6 py-3">
-          {PHOTOS.map((p, i) => <button key={p.src} onClick={() => setSel(i)} className="snap-center shrink-0 h-28 aspect-[3/4] overflow-hidden bg-zinc-900"><Img p={p} className="h-full w-full object-cover opacity-80" /></button>)}
+          {items.map((p, i) => <button key={p.src} onClick={() => setSel(i)} className="snap-center shrink-0 h-28 aspect-[3/4] overflow-hidden bg-zinc-900"><Img p={p} className="h-full w-full object-cover opacity-80" /></button>)}
         </div><div className="h-2" style={holes} /></div>
       <section ref={endRef} className="min-h-[70svh] px-8 flex flex-col justify-center gap-4 max-w-md mx-auto">
         {END.slice(0, n).map((s, i) => <Line key={i} s={s} />)}
-        {n >= END.length && <button onClick={onClose} className="mt-4 self-start px-5 py-3 border border-red-900 rounded-full font-mono text-xs tracking-widest">[ BACK TO ANGELENA.EXE ]</button>}
+        {n >= END.length && <button onClick={onClose} className="mt-4 self-start px-5 py-3 border border-red-900 rounded-full font-mono text-xs tracking-widest">[ BACK ]</button>}
       </section>
-      <AnimatePresence>{sel !== null && <Lightbox i={sel} set={setSel} />}</AnimatePresence>
+      <AnimatePresence>{sel !== null && <Lightbox items={items} i={sel} set={setSel} />}</AnimatePresence>
       {ask !== null && (
         <div className="fixed inset-0 z-[59] bg-black/80 grid place-items-center px-8">
           <div className="max-w-xs border border-red-900 bg-zinc-950 p-5 font-mono text-sm">
             <p>{SPECIAL.confirm}</p>
             <div className="mt-4 flex gap-3">
-              <button onClick={() => { setReveal(PHOTOS[ask]); setAsk(null); glitch(); vibrate([40, 30, 80]); rain() }} className="px-4 py-2 border border-red-700 text-red-400">OPEN</button>
+              <button onClick={() => { setReveal(items[ask]); setAsk(null); glitch(); vibrate([40, 30, 80]); rain() }} className="px-4 py-2 border border-red-700 text-red-400">OPEN</button>
               <button onClick={() => setAsk(null)} className="px-4 py-2 border border-zinc-700 text-zinc-400">CANCEL</button>
             </div>
           </div>

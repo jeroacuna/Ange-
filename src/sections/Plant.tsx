@@ -23,7 +23,8 @@ export function Plant() {
         <ellipse cx="76" cy="72" rx="16" ry="7" fill="#2f6b3a" transform="rotate(25 76 72)" />
         <path d="M38 100h44l-6 40H44z" fill="#4a1414" /><rect x="34" y="96" width="52" height="8" rx="3" fill="#6b1c1c" />
       </motion.svg>
+      <p className="mt-2 font-mono text-[10px] text-zinc-600">DAMAGE COUNTER: {c}</p>
       <AnimatePresence>{msg && <motion.p initial={{ opacity: 0, scale: 0.8 }} animate={{ opacity: 1, scale: 1 }} exit={{ opacity: 0 }} className="mt-3 text-center text-2xl font-black text-red-500">PARÁ DE ROMPERME LAS PELOTAS</motion.p>}</AnimatePresence>
     </div>
   )
-}
+};

@@ -15,7 +15,7 @@ import { LloronaButton } from './sections/LloronaButton'
 import { MemoryUnlock } from './sections/MemoryUnlock'
 import * as D from './data/content'
 
-const Gallery = lazy(() => import('./sections/Gallery'))
+const Archive = lazy(() => import('./sections/Archive'))
 
 export default function App() {
   const [entered, setEntered] = useState(false)
@@ -44,12 +44,13 @@ export default function App() {
           <Case tag="INCIDENT REPORT #004" title="EL AUTO" steps={D.AUTO} heart={[4, 'bottom-24 right-8']} />
           <VoidZone />
           <BehaviorMama />
+          <Case tag="UNAUTHORIZED PLAYER DETECTED" steps={D.GOALKEEPER} after={D.GOALKEEPER_AFTER} btn={{ label: 'ANALYZE GOALKEEPING SKILLS', busy: 'Analyzing...', wait: 2000, unlock: 'goalkeeper' }} />
           <NoTocar />
         </main>
       )}
       <MemoryUnlock onDone={() => setGallery(true)} />
-      {gallery && <Suspense fallback={null}><Gallery onClose={() => setGallery(false)} /></Suspense>}
+      {gallery && <Suspense fallback={null}><Archive onClose={() => setGallery(false)} /></Suspense>}
       <Final />
     </MotionConfig>
   )
-};
+}

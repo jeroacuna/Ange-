@@ -1,7 +1,7 @@
 import { useEffect, useState } from 'react'
 import { motion } from 'framer-motion'
 import { blip, burst, vibrate } from '../utils/fx'
-const LINES = ['Loading personality...', 'Loading chaos...', 'Loading questionable decisions...', 'Loading memories...', 'System ready.']
+const LINES = ['Loading personality...', 'Loading chaos...', 'Loading questionable decisions...', 'Loading memories...', 'Loading emotional damage...', 'Loading Angelena...', 'System ready.']
 
 export function Intro({ onEnter }: { onEnter: () => void }) {
   const [i, setI] = useState(0)
@@ -20,4 +20,4 @@ export function Intro({ onEnter }: { onEnter: () => void }) {
       )}
     </motion.div>
   )
-}
+};

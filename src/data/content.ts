@@ -14,6 +14,7 @@ export const STATS: Step[] = [
   { t: 'Probabilidad de que Jerónimo se ría de ella', k: 'bar' },
 ]
 export const PLANTA: Step[] = [
+  { t: 'STATUS: DOCUMENTED', k: 'dim' }, { t: 'SEVERITY: UNNECESSARY', k: 'dim' },
   'Una noche aparentemente normal.', 'Hasta que alguien decidió poner nerviosa a Angelena.',
   L('CAUSA DEL INCIDENTE'), 'Jerónimo le agarró la mano.',
   L('EFECTO DETECTADO'), 'Angelena.exe dejó de funcionar.',
@@ -21,6 +22,7 @@ export const PLANTA: Step[] = [
   L('RESULTADO DE LA NOCHE'), { t: '❌ RECHAZADO', k: 'err' },
 ]
 export const JODA: Step[] = [
+  { t: 'DATE: UNKNOWN', k: 'dim' }, { t: 'LOCATION: CLASSIFIED', k: 'dim' },
   'Una semana después de conocernos.', 'Angelena sale a una joda de la ciudad.', 'Jerónimo le escribe para reírse de que fue a esa mierda.',
   { ...L('Historical significance:'), d: 1100 }, { t: 'Unexpectedly high.', k: 'big' },
   { ...L('Communication frequency detected:'), d: 1100 }, 'Increasing...', 'Increasing...', 'Increasing...',
@@ -42,7 +44,7 @@ export const BENICIO_AFTER: Step[] = [
   { t: 'Angelena.exe has stopped responding.', k: 'err', d: 900 },
 ]
 export const AUTO: Step[] = [
-  { t: '23:47', k: 'big' }, { t: 'Location: Vehicle', k: 'dim' }, { t: 'Status: Emotionally unstable', k: 'dim' },
+  { t: '04:00', k: 'big' }, { t: 'Location: Vehicle', k: 'dim' }, { t: 'Status: Emotionally unstable', k: 'dim' },
   { t: 'Subject stopped laughing.', d: 1500 }, { t: 'Subject became sad.', d: 1800 }, { t: 'Subject refused to let go.', d: 1800 },
   { ...L('Reason:'), d: 1800 }, { t: 'JERONIMO', k: 'vanish', d: 900 },
   { t: 'System unable to determine appropriate response.', k: 'dim', d: 5200 }, { k: 'gap', d: 3000 },
@@ -53,7 +55,7 @@ export const BEHAVIOR: Step[] = [
 ]
 export const MAMA: Step[] = [
   L('NEW NPC UNLOCKED'), { t: 'MAMÁ', k: 'big' }, 'Status: unlocked', 'Interaction level: surprisingly high',
-  'Jerónimo successfully interacted with the mother.', 'Both parties participated in the nonsense.',
+  'Jerónimo successfully interacted with the mother.', 'Both parties participated in the nonsense.', { t: 'RESULT: SUCCESS.', k: 'err' },
 ]
 export const VOID: Step[] = [
   { t: "You weren't supposed to find this.", k: 'err' }, { t: 'But okay.', d: 1800 },
@@ -65,7 +67,8 @@ export const NO_TOCAR = [
   'En serio. Pará.', '...', 'Ok. Ganaste. Tomá, una lluvia de corazones. De nada.',
 ]
 export const FINAL: Step[] = [
-  { t: 'SYSTEM COMPLETE.', k: 'err' }, { t: 'You found everything.', d: 1800 }, { t: 'There was no prize.', d: 1800 },
+  { t: '100% COMPLETE', k: 'err' }, 'There is nothing else here.', { t: 'Probably.', d: 2500 },
+  { t: 'SYSTEM COMPLETE.', k: 'err', d: 3500 }, { t: 'You found everything.', d: 1800 }, { t: 'There was no prize.', d: 1800 },
   { t: 'I just made an unnecessarily complicated website for you.', d: 1800 },
   { t: 'Bueno Angelena, era para vos ❤️', k: 'big', d: 2200 },
   { t: 'Gracias por romper todas las plantas, tomar decisiones cuestionables y hacerme reír tanto.', d: 1800 },
@@ -78,4 +81,10 @@ export const LLORONA: Step[] = [
   L('😭 Cualquier cosa'), { t: 'HIGHLY PROBABLE', k: 'err' },
   { t: 'ABILITY TO ADMIT BEING CRYBABY', k: 'bar', v: 0, x: '0%', d: 1000 }, { t: 'EVIDENCE OF BEING CRYBABY', k: 'bar' },
   { t: 'LLORONA.', k: 'big', d: 1000 }, { t: 'Subject strongly denies these allegations.', k: 'dim' },
+]
+
+export const GOALKEEPER: Step[] = [L('POSITION'), { t: 'GOALKEEPER', k: 'big' }, { t: 'STATUS: ARCHIVED', k: 'dim' }, { t: 'THREAT LEVEL: UNKNOWN', k: 'dim' }]
+export const GOALKEEPER_AFTER: Step[] = [
+  L('ANALYSIS COMPLETE.'), 'Main ability:', { t: '🧤 Catching balls', k: 'big' }, 'Secondary ability:', { t: '❌ Catching the hint', k: 'big' },
+  { t: 'System recommendation:', k: 'dim', d: 1200 }, { t: 'Keep distance.', k: 'err' },
 ]

@@ -2,7 +2,7 @@ import { useSyncExternalStore } from 'react'
 import { KEEP_GALLERY, RESET_ON_ENTER } from '../config'
 import { burst, chord, toast, vibrate } from '../utils/fx'
 
-export const ALL = ['planta', 'bautista', 'benicio', 'mama', 'notocar', 'void', 'doble', 'llorona', 'hearts'] as const
+export const ALL = ['planta', 'bautista', 'benicio', 'mama', 'notocar', 'void', 'doble', 'llorona', 'goalkeeper', 'combo', 'hearts'] as const
 const LEVELS = ['NPC', 'Curiosa', 'Rompeplantas', 'Hackeada', 'Peligro público', 'Quilombo nivel dios', 'ANGELENA.EXE']
 const KEY = 'angelena.exe.v1'
 const isMain = (id: string) => (ALL as readonly string[]).includes(id)
@@ -15,7 +15,12 @@ const subs = new Set<() => void>()
 const emit = () => { try { localStorage.setItem(KEY, JSON.stringify(snap)) } catch { /* noop */ } subs.forEach(f => f()) }
 const count = () => snap.filter(isMain).length
 
+let buf: string[] = []; let bt: number | undefined
 export const secrets = {
+  emoji(e: string) {   // combo oculto: 🍺 → 💋 → 😭 (dentro de 6 s)
+    clearTimeout(bt); buf = [...buf, e].slice(-3); bt = window.setTimeout(() => { buf = [] }, 6000)
+    if (buf.join('') === '🍺💋😭') { buf = []; secrets.unlock('combo') }
+  },
   has: (id: string) => snap.includes(id),
   heartCount: () => snap.filter(i => /^h\d+$/.test(i)).length,
   unlock(id: string) {
@@ -31,4 +36,4 @@ export function useSecrets() {
   const ids = useSyncExternalStore(f => { subs.add(f); return () => { subs.delete(f) } }, () => snap)
   const found = ids.filter(isMain).length
   return { ids, found, total: ALL.length, level: LEVELS[Math.min(found, LEVELS.length - 1)], complete: found >= ALL.length }
-};
+}

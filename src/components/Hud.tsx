@@ -11,6 +11,14 @@ export function Hud({ onMemory }: { onMemory: () => void }) {
     const f = (e: Event) => { setT((e as CustomEvent).detail); setTimeout(() => setT(''), 2200) }
     window.addEventListener('fx:toast', f); return () => window.removeEventListener('fx:toast', f)
   }, [])
+  useEffect(() => {
+    let taps = 0; let idle: number | undefined
+    const say = (m: string) => { setT(m); setTimeout(() => setT(''), 2400) }
+    const arm = () => { clearTimeout(idle); idle = window.setTimeout(() => say("She's taking too long."), 40000) }
+    const down = () => { taps++; if (taps % 60 === 0) say("You really don't give up, huh?"); arm() }
+    window.addEventListener('pointerdown', down); arm()
+    return () => { window.removeEventListener('pointerdown', down); clearTimeout(idle) }
+  }, [])
   return (
     <>
       <div className="fixed top-0 inset-x-0 z-30 flex justify-between px-4 pt-[max(env(safe-area-inset-top),12px)] pb-6 font-mono text-[10px] text-zinc-400 bg-gradient-to-b from-black to-transparent pointer-events-none">
@@ -25,4 +33,4 @@ export function Hud({ onMemory }: { onMemory: () => void }) {
       </AnimatePresence>
     </>
   )
-};
+}

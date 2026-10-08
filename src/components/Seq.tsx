@@ -2,6 +2,7 @@ import { useEffect, useState } from 'react'
 import { motion } from 'framer-motion'
 import type { Step } from '../data/content'
 import { Bar } from './Bar'
+import { secrets } from '../store/secrets'
 
 export function useReveal(steps: Step[], go: boolean) {
   const [n, setN] = useState(0)
@@ -28,10 +29,10 @@ export function Line({ s }: { s: Step }) {
   if (o.k === 'vanish')
     return <motion.div initial={{ opacity: 1, letterSpacing: '0em' }} animate={{ opacity: 0, filter: 'blur(12px)', letterSpacing: '.4em' }} transition={{ duration: 4, delay: 0.8 }} className="text-5xl font-black">{o.t}</motion.div>
   if (o.k === 'bar') return <motion.div {...a}><Bar label={o.t ?? ''} v={o.v === undefined ? 100 : o.v} txt={o.x} /></motion.div>
-  return <motion.div {...a} className={CLS[o.k ?? 'quote']}>{o.t}</motion.div>
+  return <motion.div {...a} className={CLS[o.k ?? 'quote']}>{o.k === 'emoji' ? Array.from(o.t ?? '').map((ch, i) => /\p{Extended_Pictographic}/u.test(ch) ? <span key={i} onClick={() => secrets.emoji(ch)}>{ch}</span> : ch) : o.t}</motion.div>
 }
 
 export function Seq({ steps, go = true }: { steps: Step[]; go?: boolean }) {
   const n = useReveal(steps, go)
   return <>{steps.slice(0, n).map((s, i) => <Line key={i} s={s} />)}</>
-}
+};
