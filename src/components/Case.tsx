@@ -10,9 +10,9 @@ import { useScramble } from '../hooks/useScramble'
 import { MagneticButton } from './MagneticButton'
 
 type Btn = { label: string; busy: string; wait?: number; unlock?: string; shake?: boolean }
-type Props = { tag?: string; title?: string; steps: Step[]; btn?: Btn; after?: Step[]; extra?: ReactNode; heart?: [number, string]; onSwipe?: (d: 'l' | 'r') => void }
+type Props = { tag?: string; title?: string; steps: Step[]; btn?: Btn; after?: Step[]; extra?: ReactNode; heart?: [number, string]; endExtra?: ReactNode; onSwipe?: (d: 'l' | 'r') => void }
 
-export function Case({ tag, title, steps, btn, after = [], extra, heart, onSwipe }: Props) {
+export function Case({ tag, title, steps, btn, after = [], extra, endExtra, heart, onSwipe }: Props) {
   const ref = useRef<HTMLElement>(null)
   const seen = useInView(ref, { once: true, amount: 0.35 })
   const n = useReveal(steps, seen)
@@ -35,6 +35,7 @@ export function Case({ tag, title, steps, btn, after = [], extra, heart, onSwipe
       {title && <h2 data-text={title} onDoubleClick={() => { if (secrets.unlock('doble')) toast('Dos veces. Qué ansiosa.') }} className="glitch text-5xl font-black tracking-tight">{shown}</h2>}
       {steps.slice(0, n).map((s, i) => <Line key={i} s={s} />)}
       {extra}
+      {n >= steps.length && endExtra}
       {btn && n >= steps.length && ph === 0 && (
         <MagneticButton onClick={run} className="mt-4 self-start px-5 py-3 border border-red-900 rounded-full font-mono text-xs tracking-widest bg-red-950/30">[ {btn.label} ]</MagneticButton>
       )}
@@ -42,4 +43,4 @@ export function Case({ tag, title, steps, btn, after = [], extra, heart, onSwipe
       {after.slice(0, m).map((s, i) => <Line key={'a' + i} s={s} />)}
     </motion.section>
   )
-}
+};

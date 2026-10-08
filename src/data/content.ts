@@ -1,5 +1,5 @@
 export type Step = string | { t?: string; k?: 'big' | 'err' | 'dim' | 'label' | 'emoji' | 'bar' | 'vanish' | 'gap'; v?: number | null; x?: string; d?: number }
-const L = (t: string): Step => ({ t, k: 'label' })
+const L = (t: string) => ({ t, k: 'label' as const })
 
 export const IDENT: Step[] = [
   { t: 'ANGELENA', k: 'big' }, { t: 'Identity analysis complete.', k: 'dim' },
@@ -69,4 +69,13 @@ export const FINAL: Step[] = [
   { t: 'I just made an unnecessarily complicated website for you.', d: 1800 },
   { t: 'Bueno Angelena, era para vos ❤️', k: 'big', d: 2200 },
   { t: 'Gracias por romper todas las plantas, tomar decisiones cuestionables y hacerme reír tanto.', d: 1800 },
+]
+
+export const LLORONA: Step[] = [
+  { t: 'SUBJECT: ANGELENA', k: 'dim' }, { t: 'EMOTIONAL STABILITY: QUESTIONABLE', k: 'err' },
+  L('🐶 Películas de perritos'), { t: 'CONFIRMED', k: 'err' }, 'Cried watching a movie about a dog.',
+  L('🌧️ Lluvia'), { t: 'CONFIRMED', k: 'err' }, 'Cried because of the rain.',
+  L('😭 Cualquier cosa'), { t: 'HIGHLY PROBABLE', k: 'err' },
+  { t: 'ABILITY TO ADMIT BEING CRYBABY', k: 'bar', v: 0, x: '0%', d: 1000 }, { t: 'EVIDENCE OF BEING CRYBABY', k: 'bar' },
+  { t: 'LLORONA.', k: 'big', d: 1000 }, { t: 'Subject strongly denies these allegations.', k: 'dim' },
 ]
