@@ -12,7 +12,7 @@ export default function Archive({ onClose }: { onClose: () => void }) {
   const all = MEDIA.filter(m => open.some(c => m.primaryCategory === c.id || m.tags.includes(c.id)))
   if (cat) return <Gallery key={cat} items={cat === 'all' ? all : inCat(cat)} title={cat === 'all' ? 'US' : CATEGORIES.find(c => c.id === cat)?.label ?? ''} onClose={() => setCat(null)} />
   return (
-    <motion.div data-lenis-prevent initial={{ opacity: 0 }} animate={{ opacity: 1 }} className="fixed inset-0 z-[55] bg-black overflow-y-auto overscroll-contain px-8 pt-24 pb-16">
+    <motion.div data-lenis-prevent initial={{ opacity: 0 }} animate={{ opacity: 1 }} className="fixed inset-0 z-55 bg-black overflow-y-auto overscroll-contain px-8 pt-24 pb-16">
       <div className="max-w-md mx-auto flex flex-col gap-3 font-mono text-sm">
         <h1 data-text="MEMORY.DAT" className="glitch font-sans text-5xl font-black">MEMORY.DAT</h1>
         <p className="mb-4 text-[11px] tracking-[.3em] text-zinc-500">files recovered successfully.</p>

@@ -17,8 +17,8 @@ const W = { s: 'w-40', m: 'w-56', l: 'w-72' }
 function Img({ p, className }: { p: Photo; className?: string }) {
   const [bad, setBad] = useState(false)
   if (p.type === 'video' && p.poster) return <div className="relative"><img src={GALLERY_BASE + p.poster} alt="" loading="lazy" decoding="async" draggable={false} className={className} /><span className="absolute inset-0 grid place-items-center text-3xl text-white/80">▶</span></div>
-  if (p.type === 'video') return <div className={`${className} aspect-[4/5] bg-zinc-900 grid place-items-center font-mono text-[10px] text-zinc-400`}>▶ {p.title ?? 'VIDEO'}</div>
-  if (bad) return <div className={`${className} aspect-[4/5] bg-zinc-800 grid place-items-center font-mono text-[10px] text-zinc-500`}>{p.title ?? 'FILE'}</div>
+  if (p.type === 'video') return <div className={`${className} aspect-4/5 bg-zinc-900 grid place-items-center font-mono text-[10px] text-zinc-400`}>▶ {p.title ?? 'VIDEO'}</div>
+  if (bad) return <div className={`${className} aspect-4/5 bg-zinc-800 grid place-items-center font-mono text-[10px] text-zinc-500`}>{p.title ?? 'FILE'}</div>
   return <img src={GALLERY_BASE + p.src} alt={p.title ?? ''} loading="lazy" decoding="async" draggable={false} onError={() => setBad(true)} className={className} />
 }
 
@@ -39,7 +39,7 @@ function Card({ p, i, root, open, ask }: { p: Photo; i: number; root: RefObject<
       <motion.button initial={{ opacity: 0, scale: 0.9, rotate: 0, filter: 'blur(8px)' }} whileInView={{ opacity: 1, scale: 1, rotate: ROT[i % ROT.length], filter: 'blur(0px)' }} viewport={{ once: true, amount: 0.3 }} transition={{ duration: 0.8 }}
         onClick={() => { if (did.current) { did.current = false; return } open() }} {...(p.special ? lp : {})}
         className={`${W[p.size ?? 'm']} bg-zinc-100 p-2 pb-3 shadow-[0_20px_40px_rgba(0,0,0,.7)] text-left`}>
-        <Img p={p} className="aspect-[4/5] w-full object-cover" />
+        <Img p={p} className="aspect-4/5 w-full object-cover" />
         {(p.title || p.text) && <div className="pt-2 font-mono text-[9px] leading-tight text-zinc-800">{p.title && <b>{p.title}</b>}{p.text && <p>{p.text}</p>}</div>}
       </motion.button>
     </motion.div>
@@ -50,13 +50,17 @@ function Lightbox({ items, i, set }: { items: Photo[]; i: number; set: (n: numbe
   const p = items[i]; const [meta, setMeta] = useState(false); const [an, setAn] = useState(false)
   const go = (d: number) => { setMeta(false); set((i + d + items.length) % items.length) }
   const lp = useLongPress(() => { setMeta(m => !m); vibrate(30) }, 600)
+  
   return (
-    <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} className="fixed inset-0 z-[58] bg-black/95 grid place-items-center">
+    <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} className="fixed inset-0 z-58 bg-black/95 grid place-items-center">
       <button aria-label="cerrar" onClick={() => set(null)} className="absolute top-4 right-4 p-3 z-10"><X size={20} /></button>
       <motion.div key={i} drag={p.type === 'video' ? false : 'x'} dragSnapToOrigin onDragEnd={(_, d) => { if (Math.abs(d.offset.x) > 80) go(d.offset.x < 0 ? 1 : -1) }}
         onDoubleClick={e => { if (p.type !== 'video') { burst(e.clientX, e.clientY, 8); vibrate(20); blip(700, 0.06) } }} {...(p.type === 'video' ? {} : lp)}
         initial={{ opacity: 0, scale: 0.92 }} animate={{ opacity: 1, scale: 1 }} className="w-[88vw] max-w-md bg-zinc-100 p-3 pb-5 shadow-2xl">
-        <Img p={p} className="max-h-[70svh] w-full object-contain bg-black" />
+        
+        {/* ¡Aquí está la magia! Cambiamos <Img> por <Media> */}
+        <Media p={p} />
+        
         <div className="pt-2 font-mono text-[10px] text-zinc-800">{p.title}{p.text && ` — ${p.text}`}</div>
         {p.analyze && <button onClick={() => setAn(a => !a)} className="mt-2 font-mono text-[10px] text-red-700">[ ANALYZE AUDIO ]</button>}
         {an && <div className="mt-2 font-mono text-[10px] text-zinc-700 whitespace-pre-line">{p.analyze?.join('\n')}</div>}
@@ -73,7 +77,7 @@ export default function Gallery({ items, title, onClose }: { items: Photo[]; tit
   const seen = useInView(endRef, { once: true, amount: 0.6 }); const n = useReveal(END, seen)
   const holes = { background: 'repeating-linear-gradient(90deg,#27272a 0 8px,transparent 8px 20px)' }
   return (
-    <motion.div ref={root} data-lenis-prevent initial={{ opacity: 0 }} animate={{ opacity: 1 }} className="fixed inset-0 z-[55] bg-black overflow-y-auto overscroll-contain">
+    <motion.div ref={root} data-lenis-prevent initial={{ opacity: 0 }} animate={{ opacity: 1 }} className="fixed inset-0 z-55 bg-black overflow-y-auto overscroll-contain">
       <header className="pt-24 px-6 text-center">
         <h1 data-text={title} className="glitch text-5xl font-black">{title}</h1>
         <p className="mt-2 font-mono text-[11px] tracking-[.3em] text-zinc-500">files recovered successfully.</p>
@@ -83,7 +87,7 @@ export default function Gallery({ items, title, onClose }: { items: Photo[]; tit
       </div>
       <div className="bg-zinc-950 py-2"><div className="h-2" style={holes} />
         <div className="flex gap-3 overflow-x-auto snap-x px-6 py-3">
-          {items.map((p, i) => <button key={p.src} onClick={() => setSel(i)} className="snap-center shrink-0 h-28 aspect-[3/4] overflow-hidden bg-zinc-900"><Img p={p} className="h-full w-full object-cover opacity-80" /></button>)}
+          {items.map((p, i) => <button key={p.src} onClick={() => setSel(i)} className="snap-center shrink-0 h-28 aspect-3/4 overflow-hidden bg-zinc-900"><Img p={p} className="h-full w-full object-cover opacity-80" /></button>)}
         </div><div className="h-2" style={holes} /></div>
       <section ref={endRef} className="min-h-[70svh] px-8 flex flex-col justify-center gap-4 max-w-md mx-auto">
         {END.slice(0, n).map((s, i) => <Line key={i} s={s} />)}
@@ -91,7 +95,7 @@ export default function Gallery({ items, title, onClose }: { items: Photo[]; tit
       </section>
       <AnimatePresence>{sel !== null && <Lightbox items={items} i={sel} set={setSel} />}</AnimatePresence>
       {ask !== null && (
-        <div className="fixed inset-0 z-[59] bg-black/80 grid place-items-center px-8">
+        <div className="fixed inset-0 z-59 bg-black/80 grid place-items-center px-8">
           <div className="max-w-xs border border-red-900 bg-zinc-950 p-5 font-mono text-sm">
             <p>{SPECIAL.confirm}</p>
             <div className="mt-4 flex gap-3">
@@ -102,8 +106,8 @@ export default function Gallery({ items, title, onClose }: { items: Photo[]; tit
         </div>
       )}
       {reveal && (
-        <motion.div initial={{ opacity: 0, scale: 1.1 }} animate={{ opacity: 1, scale: 1 }} onClick={() => setReveal(null)} className="fixed inset-0 z-[59] bg-black grid place-items-center px-8">
-          <div className="w-72 bg-zinc-100 p-2"><Img p={reveal} className="aspect-[4/5] w-full object-cover" /><p className="p-2 font-mono text-[11px] text-zinc-800">{reveal.special?.message}</p></div>
+        <motion.div initial={{ opacity: 0, scale: 1.1 }} animate={{ opacity: 1, scale: 1 }} onClick={() => setReveal(null)} className="fixed inset-0 z-59 bg-black grid place-items-center px-8">
+          <div className="w-72 bg-zinc-100 p-2"><Img p={reveal} className="aspect-4/5 w-full object-cover" /><p className="p-2 font-mono text-[11px] text-zinc-800">{reveal.special?.message}</p></div>
         </motion.div>
       )}
     </motion.div>

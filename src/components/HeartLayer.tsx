@@ -19,7 +19,7 @@ export function HeartLayer() {
     return () => { window.removeEventListener('fx:burst', onB); window.removeEventListener('touchmove', onT); window.removeEventListener('mousemove', onM) }
   }, [])
   return (
-    <div className="fixed inset-0 z-[65] pointer-events-none overflow-hidden">
+    <div className="fixed inset-0 z-65 pointer-events-none overflow-hidden">
       {ps.map(p => {
         const fall = p.dy > 200; const d = fall ? 2.4 + (p.id % 5) * 0.12 : 0.9
         return (
